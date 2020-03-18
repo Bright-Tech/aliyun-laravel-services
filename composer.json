@@ -1,0 +1,56 @@
+{
+    "name": "bright-tech/laravel-aliyun",
+    "description": "Aliyun SDKs for Laravel",
+    "keywords": [
+        "aliyun",
+        "sms",
+        "sdk",
+        "laravel"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "homepage": "http://www.bright-tech.cn",
+    "authors": [
+        {
+            "name": "Sam Xiao",
+            "homepage": "http://www.bright-tech.cn"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "illuminate/support": "^5.5",
+        "aliyuncs/oss-sdk-php": "^2.3",
+        "anchnet/aliyun-openapi-php-sdk": "dev-master",
+        "league/flysystem": "^1.0",
+        "bright-tech/aliyun-core": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bright\\Aliyun\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Bright\\Aliyun\\AliyunServiceProvider"
+            ],
+            "aliases": {
+                "BrightAliyun": "Bright\\Aliyun\\AliyunServiceFacade"
+            }
+        }
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
+    }
+}
