@@ -14,7 +14,7 @@ class PostService
     protected $accessKeySecret;
     protected $endpoint;
     protected $bucket;
-    protected $http = 'http';
+    protected $http = 'https';
 
     protected $callbackUrl = '';
 
