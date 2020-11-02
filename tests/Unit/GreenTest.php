@@ -3,12 +3,11 @@
 namespace Tests\Unit;
 
 
-use Bright\Aliyun\Mts\GreenService;
-use Bright\Aliyun\Mts\MtsService;
+use Bright\Aliyun\Green\GreenService;
 use Bright\Aliyun\Oss\FileContract;
 use PHPUnit\Framework\TestCase;
 
-class MtsTest extends TestCase
+class GreenTest extends TestCase
 {
 
     /**
@@ -27,10 +26,9 @@ class MtsTest extends TestCase
          * ALIYUN_MTS_PIPELINE_ID=3500393f3f5b4a9c99ee078d550eed90
          */
         $mtsRegion = 'cn-shanghai';
-        $accessKeyId = 'LTAI4FzgHc4U4441wJmHEtED';
-        $accessKeySecret = 'dBN6pZmDkOHoNg0WmNPUp5fTlzfI0B';
-        $this->mtsService = new MtsService($accessKeyId, $accessKeySecret, $mtsRegion,
-            '3500393f3f5b4a9c99ee078d550eed90');
+        $accessKeyId = '';
+        $accessKeySecret = '';
+        $this->mtsService = new GreenService($accessKeyId, $accessKeySecret, $mtsRegion);
     }
 
     /**
@@ -40,40 +38,27 @@ class MtsTest extends TestCase
      */
     public function testSubmitSyncSnapshotJob()
     {
-        $input = new FileContract('oss-cn-shanghai', 'bucket-test-xyj',
-            'testing/WeChatSight4.mp4');
-        $output = new FileContract('oss-cn-shanghai', 'bucket-test-xyj',
-            'testing/WeChatSight4_cover.png');
-        $result = $this->mtsService->submitSyncSnapshotJob($input, $output);
-        print_r($result->getBody());
-//        if($result->isSuccess()){
-//            print_r($result->getBody());
-//        }else{
-//            print_r('failed');
-//            print_r($result->getBody());
-//        }
 
+
+        $result = $this->mtsService->videoAsyncScan(["porn"], [
+            [
+                "dataId" => "videoId xxx",
+                "url" => "",
+                "interval" => 1,
+                "maxFrames" => 200
+            ]
+        ], ["antispam"]);
+        print_r($result->toJson());
         $this->assertEquals('Success', $result->State);
     }
 
-    public function testSubmitMediaInfoJob()
+    public function testVideoAsyncScanResults()
     {
-        $input = new FileContract('oss-cn-shanghai', 'bucket-test-xyj',
-            'testing/WeChatSight4.mp4');
-        $result = $this->mtsService->submitMediaInfoJob($input);
-        $this->assertEquals(195.350000, $result->MediaInfoJob->Properties->Duration);
+        $input = new FileContract('oss-cn-shanghai', '',
+            '');
+
+        $result = $this->mtsService->videoAsyncScanResults(['']);
+        print_r($result->toJson());
+        $this->assertEquals('Success', $result->State);
     }
-
-    public function testSubmitOneOutputSyncTranscodeJob()
-    {
-        $input = new FileContract('oss-cn-shanghai', 'bucket-test-xyj',
-            'testing/WeChatSight4.mp4');
-
-        $output = new FileContract('oss-cn-shanghai', 'bucket-test-xyj',
-            'testing/WeChatSight4_tran.mp4');
-        $result = $this->mtsService->submitOneOutputSyncTranscodeJob($input, $output, 'S00000001-200020');
-        var_dump($result);
-        $this->assertEquals('TranscodeSuccess', $result->State);
-    }
-
 }

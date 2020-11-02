@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 
+use Bright\Aliyun\Mts\GreenService;
 use Bright\Aliyun\Mts\MtsService;
 use Bright\Aliyun\Oss\FileContract;
 use PHPUnit\Framework\TestCase;
@@ -11,7 +12,7 @@ class MtsTest extends TestCase
 {
 
     /**
-     * @var MtsService
+     * @var GreenService
      */
     public $mtsService;
 
@@ -29,7 +30,7 @@ class MtsTest extends TestCase
         $accessKeyId = '';
         $accessKeySecret = '';
         $this->mtsService = new MtsService($accessKeyId, $accessKeySecret, $mtsRegion,
-            '');
+            '3500393f3f5b4a9c99ee078d550eed90');
     }
 
     /**
@@ -44,7 +45,14 @@ class MtsTest extends TestCase
         $output = new FileContract('oss-cn-shanghai', 'bucket-test-xyj',
             'testing/WeChatSight4_cover.png');
         $result = $this->mtsService->submitSyncSnapshotJob($input, $output);
-        var_dump($result);
+        print_r($result->getBody());
+//        if($result->isSuccess()){
+//            print_r($result->getBody());
+//        }else{
+//            print_r('failed');
+//            print_r($result->getBody());
+//        }
+
         $this->assertEquals('Success', $result->State);
     }
 
@@ -53,7 +61,6 @@ class MtsTest extends TestCase
         $input = new FileContract('oss-cn-shanghai', 'bucket-test-xyj',
             'testing/WeChatSight4.mp4');
         $result = $this->mtsService->submitMediaInfoJob($input);
-        var_dump($result);
         $this->assertEquals(195.350000, $result->MediaInfoJob->Properties->Duration);
     }
 
