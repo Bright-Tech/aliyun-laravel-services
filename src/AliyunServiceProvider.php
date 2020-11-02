@@ -97,6 +97,13 @@ class AliyunServiceProvider extends ServiceProvider
             return new Mts\MtsService($config['access_key_id'], $config['access_key_secret'], $config['region_id'],
                 $config['default_pipeline_id'], $config['default_transcode_template_id']);
         });
+        /**
+         * 内容安全
+         */
+        $this->app->singleton("aliyun.green", function ($app) {
+            $config = config('aliyun.green');
+            return new Green\GreenService($config['access_key_id'], $config['access_key_secret'], $config['region_id']);
+        });
     }
 
 

@@ -4,8 +4,11 @@ namespace Bright\Aliyun\Mts;
 
 //include_once 'Core/Config.php';
 
+use AlibabaCloud\Client\AlibabaCloud;
+use AlibabaCloud\Client\Result\Result;
+use AlibabaCloud\Mts as Mts;
 use Bright\Aliyun\Oss\FileContract as OssFile;
-use Mts\Request\V20140618 as Mts;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use phpDocumentor\Reflection\Types\Integer;
 
 /**
@@ -18,9 +21,6 @@ use phpDocumentor\Reflection\Types\Integer;
  *
  * Link https://help.aliyun.com/document_detail/29232.html
  */
-
-use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-
 class MtsService extends BaseServiceProvider
 {
     /**
@@ -87,18 +87,18 @@ class MtsService extends BaseServiceProvider
      * MtsService constructor.
      * @param string $accessKeyId
      * @param string $accessKeySecret
-     * @param string $mtsRegion
+     * @param string $regionId
      * @param string $pipelineId
      * @param string $transcodeTemplateId
      */
     public function __construct(
         string $accessKeyId,
         string $accessKeySecret,
-        string $mtsRegion,
+        string $regionId,
         string $pipelineId = '',
         string $transcodeTemplateId = ''
     ) {
-        $this->mtsRegion = $mtsRegion;
+        $this->mtsRegion = $regionId;
         $this->accessKeyId = $accessKeyId;
         $this->accessKeySecret = $accessKeySecret;
         $this->pipelineId = $pipelineId;
@@ -144,11 +144,13 @@ class MtsService extends BaseServiceProvider
      */
     protected function getClient()
     {
-        if ($this->client == null) {
-            $profile = \DefaultProfile::getProfile($this->mtsRegion, $this->accessKeyId,
-                $this->accessKeySecret);
-            $this->client = new \DefaultAcsClient($profile);
-        }
+        $this->client = AlibabaCloud::accessKeyClient($this->accessKeyId, $this->accessKeySecret);
+        $this->client->regionId($this->mtsRegion)->asDefaultClient();
+//        if ($this->client == null) {
+//            $profile = \DefaultProfile::getProfile($this->mtsRegion, $this->accessKeyId,
+//                $this->accessKeySecret);
+//            $this->client = new \DefaultAcsClient($profile);
+//        }
         return $this->client;
     }
 
@@ -159,23 +161,21 @@ class MtsService extends BaseServiceProvider
      * @param OssFile $input
      * @param OssFile $output
      * @param Integer $time 截取视频第{$time}毫秒的图片
-     * @return \SimpleXMLElement
+     * @return \AlibabaCloud\Client\Result\Result
      *
      * https://help.aliyun.com/document_detail/29232.html
      */
-    public function submitSyncSnapshotJob(OssFile $input, OssFile $output, $time = 5000)
+    public function submitSyncSnapshotJob(OssFile $input, OssFile $output, $time = 5000): Result
     {
         $snapshotConfig = array(
             'OutputFile' => $output->toArray(),
             'Time' => $time
         );
-        $request = new Mts\SubmitSnapshotJobRequest();
-        $request->setAcceptFormat('JSON');
-        $request->setInput(json_encode($input->toArray()));
-        $request->setSnapshotConfig(json_encode($snapshotConfig));
-
-        $response = $this->getClient()->getAcsResponse($request);
-        return $response->SnapshotJob;
+        return $this->request('SubmitSnapshotJob', [
+            'RegionId' => $this->mtsRegion,
+            'SnapshotConfig' => json_encode($snapshotConfig),
+            'Input' => json_encode($input->toArray()),
+        ]);
     }
 
 
@@ -325,23 +325,21 @@ class MtsService extends BaseServiceProvider
         if (empty($output)) {
             throw new \Exception('输出数组不能为空');
         }
-
-        $request = new Mts\SubmitJobsRequest();
         $outputsOption = array();
-        $request->setOutputBucket($output->bucket);
-        $request->setOutputLocation($output->location);
         $outputsOption[] = [
             'OutputObject' => $output->object,
             'TemplateId' => $templateId,
             //     'WaterMarks' => $watermark_config
         ];
 
-        $request->setAcceptFormat('JSON');
-        $request->setInput(json_encode($input->toArray()));
-        $request->setOutputs(json_encode($outputsOption));
-        $request->setPipelineId($this->pipelineId);
-        $response = $this->getClient()->getAcsResponse($request);
-        return $response;
+        return $this->request('SubmitJobs', [
+            'RegionId' => $this->mtsRegion,
+            'Outputs' => json_encode($outputsOption),
+            'OutputBucket' => $output->bucket,
+            'PipelineId' => $this->pipelineId,
+            'Input' => json_encode($input->toArray()),
+            'OutputLocation' => $output->location,
+        ]);
     }
 
     /**
@@ -401,15 +399,14 @@ class MtsService extends BaseServiceProvider
     public function waitTranscodeJobComplete($transcodeJobId)
     {
         while (true) {
-            $request = new Mts\QueryJobListRequest();
-            $request->setAcceptFormat('JSON');
-            $request->setJobIds($transcodeJobId);
-
-            $response = $this->client->getAcsResponse($request);
+            $response = $this->request('QueryJobList',[
+                'RegionId' => $this->mtsRegion,
+                'JobIds' => $transcodeJobId,
+            ]);
             $state = $response->JobList->Job[0]->State;
             if ($state != 'TranscodeSuccess') {
                 if ($state == 'Submitted' or $state == 'Transcoding') {
-                    sleep(5);
+                    sleep(1);
                 } elseif ($state == 'TranscodeFail') {
                     print 'Transcode is failed!';
                     return null;
@@ -446,12 +443,36 @@ class MtsService extends BaseServiceProvider
      */
     public function submitMediaInfoJob(OssFile $input)
     {
-        $request = new Mts\SubmitMediaInfoJobRequest();
-        $request->setAcceptFormat('JSON');
-        $request->setInput(json_encode($input->toArray()));
-        $request->setUserData('SubmitMediaInfoJob userData');
-        $request->setPipelineId($this->pipelineId);
-        $response = $this->getClient()->getAcsResponse($request);
-        return $response;
+
+        $result = $this->request('SubmitMediaInfoJob', [
+            'RegionId' => $this->mtsRegion,
+            'Input' => json_encode($input->toArray())
+        ]);
+
+//        $request = new Mts\SubmitMediaInfoJobRequest();
+//        $request->setAcceptFormat('JSON');
+//        $request->setInput(json_encode($input->toArray()));
+//        $request->setUserData('SubmitMediaInfoJob userData');
+//        $request->setPipelineId($this->pipelineId);
+//        $response = $this->getClient()->getAcsResponse($request);
+        return $result;
+    }
+
+    protected function request($action, array $query, $method = 'POST'): Result
+    {
+        $this->getClient();
+        $result = AlibabaCloud::rpc()
+            ->product('Mts')
+            // ->scheme('https') // https | http
+            ->version('2014-06-18')
+            ->action($action)
+            ->method($method)
+            ->host("mts.{$this->mtsRegion}.aliyuncs.com")
+            ->options([
+                'query' => $query,
+            ])
+            ->request();
+        return $result;
+
     }
 }

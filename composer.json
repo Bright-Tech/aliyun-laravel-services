@@ -17,12 +17,13 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0",
+        "php": ">=7.1.*.",
+        "ext-json": "*",
         "illuminate/support": "^5.5",
         "aliyuncs/oss-sdk-php": "^2.3",
-        "anchnet/aliyun-openapi-php-sdk": "dev-master",
         "league/flysystem": "^1.0",
-        "bright-tech/aliyun-core": "^1.0"
+        "bright-tech/aliyun-core": "^1.0",
+        "alibabacloud/sdk": "^1.8"
     },
     "require-dev": {
         "phpunit/phpunit": "~7.0"

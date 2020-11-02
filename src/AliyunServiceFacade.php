@@ -47,7 +47,7 @@ class AliyunServiceFacade extends ServiceProvider
 
     /**
      * Mts
-     * @return Mts\MtsService
+     * @return Mts\GreenService
      */
     public static function Mts()
     {
