@@ -18,5 +18,10 @@ return [
         'access_key_secret' => env('ALIYUN_MTS_ACCESS_KEY', ''),
         'default_pipeline_id' => env('ALIYUN_MTS_DEFAULT_PIPELINE_ID', ''),
         'default_transcode_template_id' => env('ALIYUN_MTS_DEFAULT_TRANSCODE_TEMPLATE_ID', ''),
+    ],
+    'green' => [
+        'region_id' => env('ALIYUN_GREEN_REGION_ID', 'cn-hangzhou'),
+        'access_key_id' => env('ALIYUN_MTS_ACCESS_ID', ''),
+        'access_key_secret' => env('ALIYUN_MTS_ACCESS_KEY', ''),
     ]
 ];

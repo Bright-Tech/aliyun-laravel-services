@@ -8,6 +8,7 @@
 
 namespace Bright\Aliyun;
 
+use Bright\Aliyun\Green\GreenService;
 use Bright\Aliyun\Oss\AliyunOssAdapter;
 use Bright\Aliyun\Oss\PostService;
 use Illuminate\Support\Facades\Storage;
@@ -47,12 +48,22 @@ class AliyunServiceFacade extends ServiceProvider
 
     /**
      * Mts
-     * @return Mts\GreenService
+     * @return Mts\MtsService
      */
     public static function Mts()
     {
         return app('aliyun.mts');
     }
+
+    /**
+     * Mts
+     * @return GreenService
+     */
+    public static function Green()
+    {
+        return app('aliyun.green');
+    }
+
 
     /**
      * Sms
