@@ -402,8 +402,8 @@ class MtsService extends BaseServiceProvider
             $response = $this->request('QueryJobList',[
                 'RegionId' => $this->mtsRegion,
                 'JobIds' => $transcodeJobId,
-            ]);
-            $state = $response->JobList->Job[0]->State;
+            ])->toArray();
+            $state = $response['JobList']['Job'][0]]['State'];
             if ($state != 'TranscodeSuccess') {
                 if ($state == 'Submitted' or $state == 'Transcoding') {
                     sleep(1);
@@ -412,7 +412,7 @@ class MtsService extends BaseServiceProvider
                     return null;
                 }
             } else {
-                return $response->JobList->Job[0];
+                return $response['JobList']['Job'][0];
             }
         }
         return null;
