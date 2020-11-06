@@ -18,7 +18,7 @@ class PostService
 
     protected $callbackUrl = '';
 
-    protected $callbackBody = 'object=${object}&size=${size}&mimeType=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}';
+    protected $callbackBody = 'object=${object}&etag=${etag}&size=${size}&mimeType=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}';
     /**
      * 发起回调请求的Content-Type，支持application/x-www-form-urlencoded和application/json，默认为前者。
      * 如果为application/x-www-form-urlencoded，则callbackBody中的变量将会被经过url编码的值替换掉
@@ -76,6 +76,11 @@ class PostService
     public function setCallbackUrl(string $callbackUrl)
     {
         $this->callbackUrl = $callbackUrl;
+    }
+
+    public function setCallbackBody(string $callbackBody)
+    {
+        $this->callbackBody = $callbackBody;
     }
 
     /**
