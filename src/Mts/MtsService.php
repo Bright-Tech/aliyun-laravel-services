@@ -403,7 +403,7 @@ class MtsService extends BaseServiceProvider
                 'RegionId' => $this->mtsRegion,
                 'JobIds' => $transcodeJobId,
             ])->toArray();
-            $state = $response['JobList']['Job'][0]]['State'];
+            $state = $response['JobList']['Job'][0]['State'];
             if ($state != 'TranscodeSuccess') {
                 if ($state == 'Submitted' or $state == 'Transcoding') {
                     sleep(1);
