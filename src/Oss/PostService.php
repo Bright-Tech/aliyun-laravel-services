@@ -61,7 +61,21 @@ class PostService
         $this->endpoint = $endpoint;
         $this->bucket = $bucket;
     }
+    /**
+     * @return array
+     */
+    public function getPolicyConditions()
+    {
+        return $this->policyConditions;
+    }
 
+    /**
+     * @param array $callbackUrl
+     */
+    public function setPolicyConditions($policyConditions)
+    {
+        $this->policyConditions = $policyConditions;
+    }
     /**
      * @return string
      */
