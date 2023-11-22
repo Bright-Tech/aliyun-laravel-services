@@ -19,7 +19,7 @@
     "require": {
         "php": ">=7.1.0",
         "ext-json": "*",
-        "illuminate/support": "^5.8",
+        "illuminate/support": "^5.8|^8.0",
         "aliyuncs/oss-sdk-php": "^2.3",
         "league/flysystem": "^1.0",
         "bright-tech/aliyun-core": "^1.0",
